@@ -1,6 +1,9 @@
 #What does "clear,clc" mean?
 #clear,clc
-import math as m
+
+import numpy as n
+from matplotlib import pyplot as p
+
 #This section lays out the varibles that should be changed
 Apogee = 4500 #ft
 MainEjectHeight = 550 #ft
@@ -37,137 +40,208 @@ DrogueCd = [1.6, 1.6, 1.6, 1.6]
 Main = [36, 48, 60, 72, 84, 96, 120] #inches
 MainCd = [2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2]
 
+#"zeros" create matricies of zeros length and width of Main length and Drogue length
 #Making the matrices to keep track of the data
-Parachutes = zeros(len(Main),len(Drogue)) 
-VDrogue = zeros(len(Main),len(Drogue))
-VMain = zeros(len(Main),len(Drogue))
-KE1 = zeros(len(Main),len(Drogue))
-KE2 = zeros(len(Main),len(Drogue))
-KE3 = zeros(len(Main),len(Drogue))
-KE1V = zeros(len(Main),len(Drogue))
-KE2V = zeros(len(Main),len(Drogue))
-KE3V = zeros(len(Main),len(Drogue))
-DecentTime = zeros(len(Main),len(Drogue))
-Drift0 = zeros(len(Main),len(Drogue))
-Drift5 = zeros(len(Main),len(Drogue))
-Drift10 = zeros(len(Main),len(Drogue))
-Drift15 = zeros(len(Main),len(Drogue))
-Drift20 = zeros(len(Main),len(Drogue))
+#Parachutes = zeros(len(Main),len(Drogue)) 
+Parachutes = n.zeros([len(Main), len(Drogue)])
+VDrogue = n.zeros([len(Main), len(Drogue)])
+VMain = n.zeros([len(Main), len(Drogue)])
+KE1 = n.zeros([len(Main), len(Drogue)])
+KE2 = n.zeros([len(Main), len(Drogue)])
+KE3 = n.zeros([len(Main), len(Drogue)])
+KE1V = n.zeros([len(Main), len(Drogue)])
+KE2V = n.zeros([len(Main), len(Drogue)])
+KE3V = n.zeros([len(Main), len(Drogue)])
+DecentTime = n.zeros([len(Main), len(Drogue)])
+#Drift0 = n.zeros([len(Main), len(Drogue)]) Drift0 is never used
+Drift5 = n.zeros([len(Main), len(Drogue)])
+Drift10 = n.zeros([len(Main), len(Drogue)])
+Drift15 = n.zeros([len(Main), len(Drogue)])
+Drift20 = n.zeros([len(Main), len(Drogue)])
 
 #For loop to get data for all drogue and main configurations
 for i in range (len(Main)):
     for j in range (len(Drogue)):
-        Parachutes(i,j) = Drogue(j) + " " + Main(i)
+        Parachutes[i,j] = Drogue[j], " + ", Main[i]
         #Decent Velocities: Drogue & Main
-        VDrogue(i,j) = m.sqrt((8* RocketWeightNoM * g)/(m.pi * AirDensity * DrogueCd(j) * (Drogue(j)/12) ^ 2))
-        VMain(i,j) = m.sqrt((8* RocketWeightNoM * g)/(m.pi * AirDensity * MainCd(i) * (Main(i)/12) ^ 2))
+        VDrogue[i,j] = n.sqrt((8 * RocketWeightNoM * g)/(n.pi * AirDensity * 1.6 * (Drogue[j]/12)**2))
+        #"1.6" previously DrogueCd[j]
+        VMain[i,j] = n.sqrt((8 * RocketWeightNoM * g)/(n.pi * AirDensity * 2.2 * (Main[i]/12)**2))
+        #"2.2" previously "MainCd[i]"
         
         #Kinetic Energy Calculations
-        KE1(i,j) = (.5) * (Section1) * (VMain(i,j) ^ 2) #lbf
-        KE2(i,j) = (.5) * (Section2) * (VMain(i,j) ^ 2) #lbf #This is the important one
-        KE3(i,j) = (.5) * (Section3) * (VMain(i,j) ^ 2) #lbf
+        KE1[i,j] = (.5) * (Section1) * (VMain[i,j]**2) #lbf
+        KE2[i,j] = (.5) * (Section2) * (VMain[i,j]**2) #lbf #This is the important one
+        KE3[i,j] = (.5) * (Section3) * (VMain[i,j]**2) #lbf
         
         #Kinetic energy calculations for the drogue
-        KE1V(i,j) = (.5) * (Section1) * (VDrogue(i,j) ^ 2) #lbf
-        KE2V(i,j) = (.5) * (Section2) * (VDrogue(i,j) ^ 2) #lbf #This is the important one
-        KE3V(i,j) = (.5) * (Section3) * (VDrogue(i,j) ^ 2) #lbf
+        KE1V[i,j] = (.5) * (Section1) * (VDrogue[i,j]**2) #lbf
+        KE2V[i,j] = (.5) * (Section2) * (VDrogue[i,j]**2) #lbf #This is the important one
+        KE3V[i,j] = (.5) * (Section3) * (VDrogue[i,j]**2) #lbf
         
         #Decent Time Calculations
-        DecentTime(i,j) = ((Apogee - MainEjectHeight)/VDrogue(i,j)) + (MainEjectHeight/VMain(i,j)) #s
+        DecentTime[i,j] = ((Apogee - MainEjectHeight)/VDrogue[i,j]) + (MainEjectHeight/VMain[i,j]) #s
         
         #Drift Calculations
-        Drift0(i,j) = (0) * (DecentTime(i,j)) #ft
-        Drift5(i,j) = (7 + 1/3) * (DecentTime(i,j)) #ft
-        Drift10(i,j) = (14 + 2/3) * (DecentTime(i,j)) #ft
-        Drift15(i,j) = (22) * (DecentTime(i,j)) #ft
-        Drift20(i,j) = (29 + 1/3) * (DecentTime(i,j)) #ft #This is the important one
+        #Drift0[i,j] = (0) * (DecentTime[i,j]) #ft #Constantly defined as 0, not referenced after this line
+        Drift5[i,j] = (7 + 1/3) * (DecentTime[i,j]) #ft
+        Drift10[i,j] = (14 + 2/3) * (DecentTime[i,j]) #ft
+        Drift15[i,j] = (22) * (DecentTime[i,j]) #ft
+        Drift20[i,j] = (29 + 1/3) * (DecentTime[i,j]) #ft #This is the important one
 
 
 #Figure to show the drogue decent velocities
-figure(1)
+'''figure(1)
 bar(Drogue, VDrogue(1,:))
 title('Drogue Parachute Decent Velocities')
 xlabel('Drogue Diameter (in)')
-ylabel('Velocity (ft/s)')
+ylabel('Velocity (ft/s)')'''
 
+def drogue_decent_velocity():
+    p.plot(Drogue, VDrogue)
+    p.title('Drogue Parachute Decent Velocities')
+    p.xlabel('Drogue Diameter (in)')
+    p.ylabel('Velocity (ft/s)')
 
 #Figure to show the Main decent velocities
-figure(2)
+'''figure(2)
 bar(Main, VMain(:,1))
 title('Main Parachute Decent Velocities')
 xlabel('Main Diameter (in)')
-ylabel('Velocity (ft/s)')
+ylabel('Velocity (ft/s)')'''
 
-#Figure to show the ground hit kinetic energy for each main parachute
-#Section 2
-figure(3)
-bar(Main, KE2(:,1))
-title('Ground Hit Kinetic Energy of Section 2')
-xlabel('Main Diameter (in)')
-ylabel('Kinetic Energy (lbf)')
+def main_decent_velocity():
+    p.plot(Main, VMain)
+    p.title('Drogue Parachute Decent Velocities')
+    p.xlabel('Drogue Diameter (in)')
+    p.ylabel('Velocity (ft/s)')
 
 #Figure to show the ground hit kinetic energy for each main parachute
 #Section 1
-figure(9)
+'''figure(3)
+bar(Main, KE2(:,1))
+title('Ground Hit Kinetic Energy of Section 2')
+xlabel('Main Diameter (in)')
+ylabel('Kinetic Energy (lbf)')'''
+
+########################################################################################################################
+
+def main_ground_hit_kinetic_1():
+    p.plot(Main, KE1)
+    p.title('Ground Hit Kinetic Energy of Section 1 for Main')
+    p.xlabel('Main Diameter (in)')
+    p.ylabel('Kinetic Energy (lbf)')
+
+#Figure to show the ground hit kinetic energy for each main parachute
+#Section 2
+'''figure(9)
 bar(Main, KE1(:,1))
 title('Ground Hit Kinetic Energy of Section 1')
 xlabel('Main Diameter (in)')
-ylabel('Kinetic Energy (lbf)')
+ylabel('Kinetic Energy (lbf)')'''
+
+def main_ground_hit_kinetic_2():
+    p.plot(Main, KE2)
+    p.title('Ground Hit Kinetic Energy of Section 2 for Main')
+    p.xlabel('Main Diameter (in)')
+    p.ylabel('Kinetic Energy (lbf)')
 
 #Figure to show the ground hit kinetic energy for each main parachute
 #Section 3
-figure(10)
+'''figure(10)
 bar(Main, KE3(:,1))
 title('Ground Hit Kinetic Energy of Section 3')
 xlabel('Main Diameter (in)')
-ylabel('Kinetic Energy (lbf)')
+ylabel('Kinetic Energy (lbf)')'''
+
+def main_ground_hit_kinetic_3():
+    p.plot(Main, KE3)
+    p.title('Ground Hit Kinetic Energy of Section 3 for Main')
+    p.xlabel('Main Diameter (in)')
+    p.ylabel('Kinetic Energy (lbf)')
+
+########################################################################################################################   
 
 #Figure to show the ground hit kinetic energy for each drogue parachute for
 #section 1
-figure(6)
+'''figure(6)
 bar(Drogue, KE1V(1, :))
 title('Ground Hit Kinetic Energy of Section 1 for Drogue')
 xlabel('Drogue Diameter (in)')
-ylabel('Kinetic Energy (lbf)')
+ylabel('Kinetic Energy (lbf)')'''
+
+def drogue_ground_hit_kinetic_1():
+    p.plot(Drogue, KE1V)
+    p.title('Ground Hit Kinetic Energy of Section 1 for Drogue')
+    p.xlabel('Drogue Diameter (in)')
+    p.ylabel('Kinetic Energy (lbf)')
 
 #Figure to show the ground hit kinetic energy for each drogue parachute for
 #section 2
-figure(7)
+'''figure(7)
 bar(Drogue, KE2V(1, :))
 title('Ground Hit Kinetic Energy of Section 2 for Drogue')
 xlabel('Drogue Diameter (in)')
-ylabel('Kinetic Energy (lbf)')
+ylabel('Kinetic Energy (lbf)')'''
+
+def drogue_ground_hit_kinetic_2():
+    p.plot(Drogue, KE2V)
+    p.title('Ground Hit Kinetic Energy of Section 2 for Drogue')
+    p.xlabel('Drogue Diameter (in)')
+    p.ylabel('Kinetic Energy (lbf)')
 
 #Figure to show the ground hit kinetic energy for each drogue parachute for
 #section 3
-figure(8)
+'''figure(8)
 bar(Drogue, KE3V(1, :))
 title('Ground Hit Kinetic Energy of Section 3 for Drogue')
 xlabel('Drogue Diameter (in)')
-ylabel('Kinetic Energy (lbf)')
+ylabel('Kinetic Energy (lbf)')'''
+
+def drogue_ground_hit_kinetic_3():
+    p.plot(Drogue, KE3V)
+    p.title('Ground Hit Kinetic Energy of Section 3 for Drogue')
+    p.xlabel('Drogue Diameter (in)')
+    p.ylabel('Kinetic Energy (lbf)')
+
+########################################################################################################################
 
 #Figure to show the decent time for each drogue-main configuration
-figure(4)
+'''figure(4)
 bar(Main, DecentTime)
 legend('12','15','18','24')
 title('Decent Time for Different Configurations')
 xlabel('Parachute Configuration')
-ylabel('Time (s)')
+ylabel('Time (s)')'''
+
+def decent_time():
+    p.plot(Main, DecentTime)
+    p.legend('12','15','18','24')
+    p.title('Decent Time for Different Configurations')
+    p.xlabel('Parachute Configuration')
+    p.ylabel('Time (s)')
 
 #Figure to show the drift for each drogue-main configuration
-figure(5)
+'''figure(5)
 bar(Main, Drift20)
 legend('12','15','18','24')
 title('20 mi/hr Drift for Different Configurations')
 xlabel('Parachute Configuration')
-ylabel('Drift (ft)')
+ylabel('Drift (ft)')'''
 
-#Prints out all of the drogue-main configurations that meet the NASA
-#handbook requirements
+def drift():
+    p.plot(Main, Drift20)
+    p.legend('12','15','18','24')
+    p.title('20 mi/hr Drift for Different Configurations')
+    p.xlabel('Parachute Configuration')
+    p.ylabel('Drift (ft)')
+
+#Prints out all of the drogue-main configurations that meet the NASA handbook requirements:
+
 print('NASA Handbook Successful Parachute Configurations')
 for i in range(len(Main)):
     for j in range(len(Drogue)):
-        if(KE2(i,j) < 75 and DecentTime(i,j) < 90 and Drift20(i,j) < 2500):
+        if(KE2[i,j] < 75 and DecentTime[i,j] < 90 and Drift20[i,j] < 2500):
             print('Drogue Parachute #d in and Main Parachute #d in\n', Drogue(j), Main(i))
 
 #Prints out all of the drogue-main parachute configurations that meet both
@@ -179,10 +253,11 @@ print('CyLaunch Successful Parachute Configurations')
 
 for i in range (len(Main)):
     for j in range (len(Drogue)):
-        if(KE2(i,j) < 75 and DecentTime(i,j) < 90 and Drift20(i,j) < 2500 and VDrogue(i,j) < 100 and VMain(i,j) < 15):
-            print('Drogue Parachute #d in and Main Parachute #d in\n', Drogue(j), Main(i))
+        if(KE2[i,j] < 75 and DecentTime[i,j] < 90 and Drift20[i,j] < 2500 and VDrogue[i,j] < 100 and VMain[i,j] < 15):
+            print('Drogue Parachute #d in and Main Parachute #d in\n', Drogue[j], Main[i])
 
 
+#Are these points on a graph we want printed? (below)  
 #Drift0(5,3)
 #Drift5(5,3)
 #Drift10(5,3)
