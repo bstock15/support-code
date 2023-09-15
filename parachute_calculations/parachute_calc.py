@@ -57,7 +57,7 @@ def Main():
     #For loop to get data for all drogue and main configurations
     for i in range (len(Main)):
         for j in range (len(Drogue)):
-            #Parachutes[i,j] = Drogue[j], " + ", Main[i] 
+            #Parachutes[i,j] = Drogue[j], Main[i] 
             Parachutes[i] = Main[i]
             Parachutes[j] = Drogue[j]
 
@@ -104,7 +104,7 @@ def Main():
             if(KE2[i,j] < 75 and DecentTime[i,j] < 90 and Drift20[i,j] < 2500 and VDrogue[i,j] < 100 and VMain[i,j] < 15):
                 print('Drogue Parachute %d in and Main Parachute %d in:\n', "Drogue:", Drogue[j], "Main:", Main[i])
 
-    graph_data(1, Drogue, VDrogue, 'Drogue Parachute Decent Velocities', 'Drogue Diameter (in)', 'Velocity (ft/s)')
+    graph_data(1, Drogue, VDrogue.T, 'Drogue Parachute Decent Velocities', 'Drogue Diameter (in)', 'Velocity (ft/s)')
 
     graph_data(2, Main, VMain, 'Main Parachute Decent Velocities', 'Main Diameter (in)', 'Velocity (ft/s)')
 
@@ -114,11 +114,11 @@ def Main():
 
     graph_data(5, Main, KE3, 'Ground Hit Kinetic Energy of Section 3 for Main', 'Main Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data(6, Drogue, KE1V, 'Ground Hit Kinetic Energy of Section 1 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(6, Drogue, KE1V.T, 'Ground Hit Kinetic Energy of Section 1 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data(7, Drogue, KE2V, 'Ground Hit Kinetic Energy of Section 2 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(7, Drogue, KE2V.T, 'Ground Hit Kinetic Energy of Section 2 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data(8, Drogue, KE3V, 'Ground Hit Kinetic Energy of Section 3 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(8, Drogue, KE3V.T, 'Ground Hit Kinetic Energy of Section 3 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
 
     graph_data2(9, Main, DecentTime, ('12','15','18','24'),'Decent Time for Different Configurations', 'Parachute Configuration', 'Time (s)')
 
@@ -129,21 +129,21 @@ def Main():
 
 def graph_data(figure, x, y, title, xlabel, ylabel):
     p.figure(figure)
-    p.plot(x)
-    p.plot(y)
+    p.plot(x, y)
     p.title(title)
     p.xlabel(xlabel)
     p.ylabel(ylabel)
+    p.grid()
     p.show()
 
 def graph_data2(figure, x, y, legend, title, xlabel, ylabel):
     p.figure(figure)
-    p.plot(x)
-    p.plot(y)
+    p.plot(x, y)
     p.legend(legend)
     p.title(title)
     p.xlabel(xlabel)
     p.ylabel(ylabel)
+    p.grid()
     p.show()
 
 if __name__ == "__main__":
