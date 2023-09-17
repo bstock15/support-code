@@ -1,5 +1,23 @@
 #-----------------------------------------------------------------
-# rvw - put a high level description of the software in this file
+# PROGRAM OVERVIEW:
+# This program calculates the configurations of our Main and Drogue parachutes that are successful by NASA handbook, and CyLaunch, standards.
+# This information is printed to the terminal in a grid form. The variables measured to calculate a succesful
+# parachute combination are the kinetic energy the rocket impacts the ground with (in lbf), the decent time of the rocket (in seconds), 
+# the number of feet (ft) the rocket drifts before impacting the ground, and the decent velocities of the Main and Drogue parachutes (in ft/s). 
+#
+# This program also prints graphs displaying the decent velocities of the Main and Drogue parachutes, the kinetic energy the rocket impacts
+# the ground with for all three sections of the rocket considering all the different combinations of both the Main and Drogue parachutes,
+# the decent time given different parachute configurations, and the amount of drfit the rocket experiences with different parachute cofigurations
+# while experiencing different wind speeds. 
+#
+# TECHNICAL ANALYSIS:
+# To calculate the values for kinetic energy upon ground impact, decent time, drift, and parachute velocites, various constants related to 
+# the mass of rocket components and rocket performance parameters are defined before running any calculations. Empty arrays are then created to 
+# store the information for each subsequent varible we calculate. The program then calculates values for each aforementioned variable using the 
+# constants provided entered into equations. The variable values are stored into the empty arrays created at the beginning of the program using
+# single or double For loops. Another two sets of For loops are then used to determine which combinations of parachutes meet our standards, 
+# determined by the rocket success parameters. Finally, two functions outside of Main are used to create graphs of every relevant measurement
+# in bar and line graph forms. 
 #-----------------------------------------------------------------
 import numpy as n
 from matplotlib import pyplot as p
@@ -34,11 +52,11 @@ def Main():
     #-------------------------------------------------------------
     # Rocket Success Parameters
     #-------------------------------------------------------------
-    KE2_Limit = 75 # rvw - Add units
-    DecentTime_Limit = 90
-    Drift20_Limit = 2500
-    VDrogue_Limit = 100
-    VMain_Limit = 15
+    KE2_Limit_lbf = 75 # kilo joules
+    DecentTime_Limit_s = 90 #seconds
+    Drift20_Limit_ft = 2500 #ft
+    VDrogue_Limit_fts= 100 #ft/s
+    VMain_Limit_fts = 15 #ft/s
 
     Section1 = NoseCone + PayloadTube + ForwardSwitchBand #slugs
     Section2 = DrogueTube + AvionicsBay + MainTube #slugs
@@ -72,33 +90,34 @@ def Main():
     Drift15 = n.zeros([len(Main), len(Drogue)])
     Drift20 = n.zeros([len(Main), len(Drogue)])
 
-    # rvw - take some time and tell me what each loop is doing in a comment
-    # rvw - it's good practice to use i as the first layer of a for loop and go down with
-    # each layer of nesting (i, j, k, etc).
-    for j in range (len(Main)): 
-        VMain[j] = n.sqrt((8 * RocketWeightNoM * g)/(n.pi * AirDensity * MainCd[j] * (Main[j]/12)**2))             
+    #Calculates Main parachute decent velocities
+    #and the respective ground hit kinetic energy measurements on all three sections of the rocket
+    for i in range (len(Main)): 
+        VMain[i] = n.sqrt((8 * RocketWeightNoM * g)/(n.pi * AirDensity * MainCd[i] * (Main[i]/12)**2))             
         #Kinetic Energy Calculations
-        KE1[j] = (.5) * (Section1) * (VMain[j]**2) #lbf
-        KE2[j] = (.5) * (Section2) * (VMain[j]**2) #lbf #This is the important one
-        KE3[j] = (.5) * (Section3) * (VMain[j]**2) #lbf       
+        KE1[i] = (.5) * (Section1) * (VMain[i]**2) #lbf
+        KE2[i] = (.5) * (Section2) * (VMain[i]**2) #lbf #This is the important one
+        KE3[i] = (.5) * (Section3) * (VMain[i]**2) #lbf       
         
-    for j in range (len(Drogue)):
-        VDrogue[j] = n.sqrt((8 * RocketWeightNoM * g)/(n.pi * AirDensity * DrogueCd[j] * (Drogue[j]/12)**2))
+    #Calculates Drogue parachute decent velocities 
+    #and the respective ground hit kinetic energy measurements on all three sections of the rocket
+    for i in range (len(Drogue)):
+        VDrogue[i] = n.sqrt((8 * RocketWeightNoM * g)/(n.pi * AirDensity * DrogueCd[i] * (Drogue[i]/12)**2))
         #Kinetic Energy Calculations
-        KE1V[j] = (.5) * (Section1) * (VDrogue[j]**2) #lbf
-        KE2V[j] = (.5) * (Section2) * (VDrogue[j]**2) #lbf #This is the important one
-        KE3V[j] = (.5) * (Section3) * (VDrogue[j]**2) #lbf
+        KE1V[i] = (.5) * (Section1) * (VDrogue[i]**2) #lbf
+        KE2V[i] = (.5) * (Section2) * (VDrogue[i]**2) #lbf #This is the important one
+        KE3V[i] = (.5) * (Section3) * (VDrogue[i]**2) #lbf
 
+    #Calculates the decent time of the rocket given different parachute configurations
+    #and the distance, in ft, traveled after parachute deployment, given different constant wind speeds
     for i in range(len(Main)):
         for j in range (len(Drogue)):     
                 DecentTime[i,j] = ((Apogee - MainEjectHeight)/VDrogue[j]) + (MainEjectHeight/VMain[i]) #s       
                 #Drift Calculations
-                # rvw - unless it slows down the progam a ton, lets go ahead and get this data.
-                # we can cross refrence it with successful configurations to get more data
-                '''Drift0[i,j] = (0) * (DecentTime[i,j]) #ft 
+                Drift0[i,j] = (0) * (DecentTime[i,j]) #ft 
                 Drift5[i,j] = (7 + 1/3) * (DecentTime[i,j]) #ft
                 Drift10[i,j] = (14 + 2/3) * (DecentTime[i,j]) #ft
-                Drift15[i,j] = (22) * (DecentTime[i,j]) #ft'''
+                Drift15[i,j] = (22) * (DecentTime[i,j]) #ft
                 Drift20[i,j] = (29 + 1/3) * (DecentTime[i,j]) #ft #This is the important one
 
     # Prints out all of the drogue-main configurations that meet the NASA handbook requirements 3.3, 3.12, 3.11
@@ -106,10 +125,9 @@ def Main():
     print('NASA Handbook Successful Parachute Configurations:')
     for i in range(len(Main)):
         for j in range(len(Drogue)):
-            if(KE2[j] < KE2_Limit and DecentTime[i,j] < DecentTime_Limit and Drift20[i,j] < Drift20_Limit):
-                data = n.array(["Drogue:", Drogue[j] , "Main:", Main[i]])
-                print(data) # rvw - we'll want to print outside of the loop, otherwise we're printing the entire array
-                            # each time this if statement is hit
+            if(KE2[j] < KE2_Limit_lbf and DecentTime[i,j] < DecentTime_Limit_s and Drift20[i,j] < Drift20_Limit_ft):
+                data = n.array(["Drogue:", Drogue[j] , "Main:", Main[i]])            
+                print(data)                       
 
     #Prints out all of the drogue-main parachute configurations that meet both
     #the NASA handbook requirements and CyLaunch's requirements 
@@ -117,12 +135,10 @@ def Main():
 
     print('\n')
     print('CyLaunch Successful Parachute Configurations:')
-    # rvw - we now have an array of rockets that meet nasa configurations, why don't we iterate through that list instead of all rockets?
-    for i in range (len(Main)):
-        for j in range (len(Drogue)):
-            if(KE2[j] < KE2_Limit and DecentTime[i,j] < DecentTime_Limit and Drift20[i,j] < Drift20_Limit and VDrogue[j] < VDrogue_Limit and VMain[j] < VMain_Limit):
-                data2 = n.array(["Drogue:", Drogue[j] , "Main:", Main[i]])
-                print(data2) # rvw - same as above
+    for i in range (len(data)):
+        if(KE2[j] < KE2_Limit_lbf and DecentTime[i,j] < DecentTime_Limit_s and Drift20[i,j] < Drift20_Limit_ft, VDrogue[j] < VDrogue_Limit_fts and VMain[j] < VMain_Limit_fts):
+            data2 = n.array(["Drogue:", Drogue[j] , "Main:", Main[i]])
+            print(data2)
 
     graph_data(1, Drogue, VDrogue, Drogue, 1, 'Drogue Parachute Decent Velocities', 'Drogue Diameter (in)', 'Velocity (ft/s)')
 
@@ -142,9 +158,15 @@ def Main():
 
     graph_data2(9, Main, DecentTime, ('12','15','18','24'), 'Decent Time for Different Configurations', 'Main Diameter (in)', 'Time (s)')
 
-    graph_data2(10, Main, Drift20, ('12','15','18','24'), '20 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+    graph_data2(10, Main, Drift0, ('12','15','18','24'), '0 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
 
-    # rvw - can we make a graph for each drift scenario for each successful rocket config?
+    graph_data2(11, Main, Drift5, ('12','15','18','24'), '5 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+
+    graph_data2(12, Main, Drift10, ('12','15','18','24'), '10 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+
+    graph_data2(13, Main, Drift15, ('12','15','18','24'), '15 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+
+    graph_data2(14, Main, Drift20, ('12','15','18','24'), '20 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
     
 def graph_data(figure, x, y, z, c, title, xlabel, ylabel):
     p.figure(figure)
