@@ -102,9 +102,9 @@ def Main():
         VMaini[i] = n.sqrt((8 * RocketWeightNoMi * g)/(n.pi * AirDensity * MainCd[i] * (Main[i]/12)**2))
         VMainf[i] = n.sqrt((8 * RocketWeightNoMf * g)/(n.pi * AirDensity * MainCd[i] * (Main[i]/12)**2))
         # Kinetic Energy Calculations
-        KE1[i] = (.5) * (Section1f) * (VMain[i]**2) # lbf
-        KE2[i] = (.5) * (Section2) * (VMain[i]**2) # lbf This is the important one
-        KE3[i] = (.5) * (Section3) * (VMain[i]**2) # lbf       
+        KE1[i] = (.5) * (Section1f) * (VMainf[i]**2) # lbf
+        KE2[i] = (.5) * (Section2) * (VMainf[i]**2) # lbf This is the important one
+        KE3[i] = (.5) * (Section3) * (VMainf[i]**2) # lbf       
         
     # Calculates Drogue parachute decent velocities 
     # and the respective ground hit kinetic energy measurements on all three sections of the rocket
@@ -119,7 +119,7 @@ def Main():
     # and the distance, in ft, traveled after parachute deployment, given different constant wind speeds
     for i in range(len(Main)):
         for j in range (len(Drogue)):     
-                DecentTime[i,j] = ((Apogee - MainEjectHeight)/VDrogue[j]) + (MainEjectHeight/VMain[i]) # s       
+                DecentTime[i,j] = ((Apogee - MainEjectHeight)/VDrogue[j]) + ((MainEjectHeight - PayloadEjectHeight)/VMaini[i]) + (PayloadEjectHeight/VMainf[i]) # s       
                 # Drift Calculations
                 Drift0[i,j] = (0) * (DecentTime[i,j]) # ft 
                 Drift5[i,j] = (7 + 1/3) * (DecentTime[i,j]) # ft
@@ -143,37 +143,39 @@ def Main():
     print('\n')
     print('CyLaunch Successful Parachute Configurations:')
     for i in range (len(data)):
-        if(KE2[j] < KE2_Limit_lbf and DecentTime[i,j] < DecentTime_Limit_s and Drift20[i,j] < Drift20_Limit_ft and VDrogue[j] < VDrogue_Limit_fts and VMain[j] < VMain_Limit_fts):
+        if(KE2[j] < KE2_Limit_lbf and DecentTime[i,j] < DecentTime_Limit_s and Drift20[i,j] < Drift20_Limit_ft and VDrogue[j] < VDrogue_Limit_fts and VMaini[j] < VMain_Limit_fts):
             data2 = n.array(["Drogue:", Drogue[j] , "Main:", Main[i]])
             print(data2)
 
     graph_data(1, Drogue, VDrogue, Drogue, 1, 'Drogue Parachute Decent Velocities', 'Drogue Diameter (in)', 'Velocity (ft/s)')
 
-    graph_data(2, Main, VMain, Main, 3, 'Main Parachute Decent Velocities', 'Main Diameter (in)', 'Velocity (ft/s)')
+    graph_data(2, Main, VMaini, Main, 3, 'Pre-Payload Ejection Main Parachute Decent Velocities', 'Main Diameter (in)', 'Velocity (ft/s)')
 
-    graph_data(3, Main, KE1, Main, 3, 'Ground Hit Kinetic Energy of Section 1 for Main', 'Main Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(3, Main, VMainf, Main, 3, 'Post-Payload Ejection Main Parachute Decent Velocities', 'Main Diameter (in)', 'Velocity (ft/s)')
 
-    graph_data(4, Main, KE2, Main, 3, 'Ground Hit Kinetic Energy of Section 2 for Main', 'Main Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(4, Main, KE1, Main, 3, 'Ground Hit Kinetic Energy of Section 1 for Main', 'Main Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data(5, Main, KE3, Main, 3, 'Ground Hit Kinetic Energy of Section 3 for Main', 'Main Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(5, Main, KE2, Main, 3, 'Ground Hit Kinetic Energy of Section 2 for Main', 'Main Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data(6, Drogue, KE1V, Drogue, 1, 'Ground Hit Kinetic Energy of Section 1 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(6, Main, KE3, Main, 3, 'Ground Hit Kinetic Energy of Section 3 for Main', 'Main Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data(7, Drogue, KE2V, Drogue, 1, 'Ground Hit Kinetic Energy of Section 2 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(7, Drogue, KE1V, Drogue, 1, 'Ground Hit Kinetic Energy of Section 1 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data(8, Drogue, KE3V, Drogue, 1, 'Ground Hit Kinetic Energy of Section 3 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
+    graph_data(8, Drogue, KE2V, Drogue, 1, 'Ground Hit Kinetic Energy of Section 2 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data2(9, Main, DecentTime, ('12','15','18','24'), 'Decent Time for Different Configurations', 'Main Diameter (in)', 'Time (s)')
+    graph_data(9, Drogue, KE3V, Drogue, 1, 'Ground Hit Kinetic Energy of Section 3 for Drogue', 'Drogue Diameter (in)', 'Kinetic Energy (lbf)')
 
-    graph_data2(10, Main, Drift0, ('12','15','18','24'), '0 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+    graph_data2(10, Main, DecentTime, ('12','15','18','24'), 'Decent Time for Different Configurations', 'Main Diameter (in)', 'Time (s)')
 
-    graph_data2(11, Main, Drift5, ('12','15','18','24'), '5 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+    graph_data2(11, Main, Drift0, ('12','15','18','24'), '0 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
 
-    graph_data2(12, Main, Drift10, ('12','15','18','24'), '10 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+    graph_data2(12, Main, Drift5, ('12','15','18','24'), '5 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
 
-    graph_data2(13, Main, Drift15, ('12','15','18','24'), '15 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+    graph_data2(13, Main, Drift10, ('12','15','18','24'), '10 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
 
-    graph_data2(14, Main, Drift20, ('12','15','18','24'), '20 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+    graph_data2(14, Main, Drift15, ('12','15','18','24'), '15 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
+
+    graph_data2(15, Main, Drift20, ('12','15','18','24'), '20 mi/hr Drift for Different Configurations', 'Main Diameter (in)', 'Drift (ft)')
     
 def graph_data(figure, x, y, z, c, title, xlabel, ylabel):
     p.figure(figure)
